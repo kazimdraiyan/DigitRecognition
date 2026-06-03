@@ -9,9 +9,19 @@ A small project implementing a neural network from scratch (no deep‑learning f
 
 ## Project layout
 
-- data/       - dataset  
-- network/    - core network implementation  
-- notebooks/  - Jupyter notebooks for experimentation and visualization  
-- train.py    - for training the model  
-- evaluate.py - for inference  
+- data/                - dataset  
+- network/             - core network implementation  
+- notebooks/           - Jupyter notebooks for experimentation and visualization  
+- tests/               - unit tests
+- main.py/             - entry point for running the model
+- train.py             - for training the model  
+- utils.py             - utility functions
+- syntax_playground.py - for testing code snippets
 - README.md
+
+## Run Python files
+
+```bash
+cd path/to/digit_recognition
+python -m dir.python_file_name
+```
