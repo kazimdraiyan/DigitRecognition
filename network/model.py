@@ -35,8 +35,12 @@ class NeuralNetwork:
         self.a2 = self.softmax(self.z2) # Output layer activation
         return self.a2
 
+    # TODO: Test with mean_squared_loss first, then compare with cross_entropy_loss
+    def mean_squared_loss(self, y_true, y_pred):
+        return np.mean((y_true - y_pred) ** 2)
+    
     # TODO: Learn more
-    def compute_loss(self, y_true, y_pred):
+    def cross_entropy_loss(self, y_true, y_pred):
         epsilon = 1e-15
         y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
         loss = -np.mean(np.sum(y_true * np.log(y_pred), axis=1))
