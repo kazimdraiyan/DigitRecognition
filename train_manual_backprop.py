@@ -42,30 +42,17 @@ def change_for_sample(sample_index):
     change = expected - output
     current_hid = nn.a1  # Activation of the hidden layer
 
-    change_w2 = np.zeros_like(nn.w2)
-    for i in range(10):
-        change_w2.T[i] = change[i] * current_hid  # ? Add proportionality constant?
-
-    # print("\nAfter changing w2:")
-    # evaluate(sample_index)
+    change_w2 = np.outer(current_hid, change)  # ? Add proportionality constant?
 
     # * New w1
-    change_hid = np.zeros_like(current_hid)
-    new_w2 = np.copy(nn.w2) + change_w2
+    new_w2 = nn.w2 + change_w2
     # Add what each neuron of the output layer thinks about the change
-    for i in range(10):
-        change_hid += new_w2.T[i] * change[i]
+    change_hid = change @ new_w2.T
 
     change_hid = change_hid.flatten()
     current_input = x_train[sample_index]
-    change_w1 = np.zeros_like(nn.w1)
-    for i in range(64):
-        change_w1.T[i] = (
-            change_hid[i] * current_input
-        )  # ? Add proportionality constant?
+    change_w1 = np.outer(current_input, change_hid)
 
-    # print("\nAfter changing w1:")
-    # evaluate(sample_index)
     return change_w1, change_w2
 
 
