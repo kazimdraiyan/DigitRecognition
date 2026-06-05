@@ -17,6 +17,7 @@ class NeuralNetwork:
         self.w2 = np.random.randn(hidden_size, output_size) * np.sqrt(2 / hidden_size)
         self.b2 = np.zeros((1, output_size))
 
+    # TODO: Move sigmoid and softmax to utils.py
     # Transforms R to (0, 1)
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
