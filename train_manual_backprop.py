@@ -45,18 +45,27 @@ def change_for_sample(sample_index):
     change_w2 = np.outer(current_hid, change)  # ? Add proportionality constant?
 
     # * New w1
-    new_w2 = nn.w2 + change_w2
     # Add what each neuron of the output layer thinks about the change
-    change_hid = change @ new_w2.T
+    change_hid = change @ nn.w2.T
 
     change_hid = change_hid.flatten()
+    # change_hid /= np.linalg.norm(change_hid) # Normalize the change to prevent exploding gradients
     current_input = x_train[sample_index]
     change_w1 = np.outer(current_input, change_hid)
 
     return change_w1, change_w2
 
 
-def train_on_batch(start_index, batch_size=32):
+def evaluate_loss(size):
+    outputs = nn.forward(x_train[:size])
+    loss = nn.mean_squared_loss(
+        one_hot_y_train[:size],
+        outputs
+    )
+    print(f"Loss: {loss:.4f}")
+
+
+def train_on_batch(start_index, batch_size):
     start_time = time.perf_counter()
 
     change_w1_sum = np.zeros_like(nn.w1)
@@ -70,29 +79,34 @@ def train_on_batch(start_index, batch_size=32):
     learning_rate = 0.1
     nn.w1 += change_w1_sum / batch_size * learning_rate
     nn.w2 += change_w2_sum / batch_size * learning_rate
+    
+    # # Weight decay:
+    # decay_rate = 0.999
+    # nn.w1 *= decay_rate
+    # nn.w2 *= decay_rate
 
     end_time = time.perf_counter()
     print(f"Batch trained in {end_time - start_time:.4f} seconds")
 
 
-def evaluate_on_train_set(size=100):
+def evaluate_on_train_set(size):
     correct = 0
     for i in range(size):
         output = evaluate_sample(i)
         if np.argmax(output) == y_train[i]:
             correct += 1
     accuracy = correct / size
-    print(f"Training set accuracy: {accuracy:.4f}")
+    print(f"Training set accuracy: {accuracy * 100:.2f}%")
 
 
-def evaluate_on_test_set(size=100):
+def evaluate_on_test_set(size):
     correct = 0
     for i in range(size):
         output = evaluate_sample(i, test=True)
         if np.argmax(output) == y_test[i]:
             correct += 1
     accuracy = correct / size
-    print(f"Test set accuracy: {accuracy:.4f}")
+    print(f"Test set accuracy: {accuracy * 100:.2f}%")
 
 
 # print("\nTest 0 before train:")
@@ -112,34 +126,35 @@ def evaluate_on_test_set(size=100):
 # print("\nTest 1 after train:")
 # evaluate(1)
 
+
+# for i in range(100):
+#     print("Batch", i + 1, ":")
+#     train_on_batch(i)
+#     evaluate_loss(500)
+#     evaluate_on_train_set(500)
+#     evaluate_on_test_set(500)
+
 print("Before training:")
-evaluate_on_train_set()
-evaluate_on_test_set()
+print("Norm of w1: ", np.linalg.norm(nn.w1))
+print("Norm of w2: ", np.linalg.norm(nn.w2))
+evaluate_loss(500)
+evaluate_on_train_set(500)
+evaluate_on_test_set(500)
 
-print("Batch 1:")
-train_on_batch(0)
-evaluate_on_train_set()
-evaluate_on_test_set()
+print("\nTraining on batches...")
 
-print("Batch 2:")
-train_on_batch(32)
-evaluate_on_train_set()
-evaluate_on_test_set()
+BATCH_SIZE = 100
+for start in range(0, len(x_train) // 10, BATCH_SIZE):
+    print(start // BATCH_SIZE + 1, end=": ")
+    train_on_batch(start, BATCH_SIZE)
+    print("Norm of w1: ", np.linalg.norm(nn.w1))
+    print("Norm of w2: ", np.linalg.norm(nn.w2))
+    evaluate_loss(500)
 
-print("Batch 3:")
-train_on_batch(64)
-evaluate_on_train_set()
-evaluate_on_test_set()
 
-print("Batch 4:")
-train_on_batch(96)
-evaluate_on_train_set()
-evaluate_on_test_set()
-
-print("Batch 5:")
-train_on_batch(128)
-evaluate_on_train_set()
-evaluate_on_test_set()
+print("\nAfter training:")
+evaluate_on_train_set(500)
+evaluate_on_test_set(500)
 
 print("\nTest 0 after train:")
 evaluate_sample(0, print_output=True)
