@@ -1,5 +1,6 @@
 import numpy as np
 
+import utils
 
 class NeuralNetwork:
     # One hidden layer for now. # TODO: Generalize the constructor to accept n hidden layers
@@ -17,23 +18,12 @@ class NeuralNetwork:
         self.w2 = np.random.randn(hidden_size, output_size) * np.sqrt(2 / hidden_size)
         self.b2 = np.zeros((1, output_size))
 
-    # TODO: Move sigmoid and softmax to utils.py
-    # Transforms R to (0, 1)
-    def sigmoid(self, z):
-        return 1 / (1 + np.exp(-z))
-
-    # Max shifted softmax
-    # Transforms the tuple z into a probability distribution: each element is between 0 and 1, all elements add up to 1
-    def softmax(self, z):
-        exp_z = np.exp(z - np.max(z, axis=1, keepdims=True))
-        return exp_z / np.sum(exp_z, axis=1, keepdims=True)
-
     # Returns output layer, given an input layer activation
     def forward(self, x):
         self.z1 = np.dot(x, self.w1) + self.b1
-        self.a1 = self.sigmoid(self.z1) # Hidden layer activation
+        self.a1 = utils.sigmoid(self.z1) # Hidden layer activation
         self.z2 = np.dot(self.a1, self.w2) + self.b2
-        self.a2 = self.softmax(self.z2) # Output layer activation
+        self.a2 = utils.softmax(self.z2) # Output layer activation
         return self.a2
 
     # TODO: Test with mean_squared_loss first, then compare with cross_entropy_loss
