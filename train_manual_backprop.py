@@ -144,7 +144,7 @@ evaluate_on_test_set(500)
 print("\nTraining on batches...")
 
 BATCH_SIZE = 100
-for start in range(0, len(x_train) // 10, BATCH_SIZE):
+for start in range(0, len(x_train), BATCH_SIZE):
     print(start // BATCH_SIZE + 1, end=": ")
     train_on_batch(start, BATCH_SIZE)
     print("Norm of w1: ", np.linalg.norm(nn.w1))
@@ -155,6 +155,8 @@ for start in range(0, len(x_train) // 10, BATCH_SIZE):
 print("\nAfter training:")
 evaluate_on_train_set(500)
 evaluate_on_test_set(500)
+
+nn.save_model("model_v01.npz")
 
 print("\nTest 0 after train:")
 evaluate_sample(0, print_output=True)

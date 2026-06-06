@@ -38,7 +38,7 @@ x = np.array(img, dtype=np.float32)
 x /= 255  # Normalize [0, 255] to [0, 1]
 x = x.reshape(1, 28 * 28)  # Convert 2D array to 1D array
 
-nn = NeuralNetwork()
+nn = NeuralNetwork(filename="model_v01.npz")
 prediction = nn.forward(x)
 digit = np.argmax(prediction)
 print(prediction)

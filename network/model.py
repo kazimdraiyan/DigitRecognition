@@ -4,9 +4,16 @@ import utils
 
 class NeuralNetwork:
     # One hidden layer for now. # TODO: Generalize the constructor to accept n hidden layers
-    def __init__(self, input_size=28 * 28, hidden_size=64, output_size=10, seed=42):
-        np.random.seed(seed)
+    def __init__(self, input_size=28 * 28, hidden_size=64, output_size=10, seed=42, filename=None):
+        if filename:
+            data = np.load(filename)
+            self.w1 = data['w1']
+            self.b1 = data['b1']
+            self.w2 = data['w2']
+            self.b2 = data['b2']
+            return
 
+        np.random.seed(seed)
         # Initialize with random (for now) weights and biases
         # TODO: initialize network by loading an existing model
         self.w1 = np.random.randn(input_size, hidden_size) * np.sqrt(2 / input_size) # Normal distribution. He initialization: keeps the initial weights smaller
@@ -42,3 +49,6 @@ class NeuralNetwork:
         print("b1 shape:", self.b1.shape)
         print("W2 shape:", self.w2.shape)
         print("b2 shape:", self.b2.shape)
+    
+    def save_model(self, filename):
+        np.savez(filename, w1=self.w1, b1=self.b1, w2=self.w2, b2=self.b2)
