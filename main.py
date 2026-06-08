@@ -23,9 +23,22 @@ canvas.pack()
 # Output labels
 right_frame = Frame(main_frame)
 right_frame.pack(side=LEFT, padx=(12, 0))
-probability_texts = [StringVar(value=f"{i}: 0.0 %") for i in range(10)]
-for i, string_var in enumerate(probability_texts):
-    Label(right_frame, textvariable=string_var, anchor="w", width=14).pack()
+
+# Model 1 column
+model1_frame = Frame(right_frame)
+model1_frame.pack(side=LEFT, padx=(0, 10))
+Label(model1_frame, text="Model 1", font=("Arial", 10, "bold")).pack()
+probability_texts_m1 = [StringVar(value=f"{i}: 0.0 %") for i in range(10)]
+for i, string_var in enumerate(probability_texts_m1):
+    Label(model1_frame, textvariable=string_var, anchor="w", width=14).pack()
+
+# Model 2 column
+model2_frame = Frame(right_frame)
+model2_frame.pack(side=LEFT)
+Label(model2_frame, text="Model 2", font=("Arial", 10, "bold")).pack()
+probability_texts_m2 = [StringVar(value=f"{i}: 0.0 %") for i in range(10)]
+for i, string_var in enumerate(probability_texts_m2):
+    Label(model2_frame, textvariable=string_var, anchor="w", width=14).pack()
 
 
 image = Image.new("L", (WIDTH, HEIGHT))  # "L" means grayscale image
@@ -46,7 +59,8 @@ def clear_canvas():
     # Reset displayed probabilities
     try:
         for i in range(10):
-            probability_texts[i].set(f"{i}: 0.0 %")
+            probability_texts_m1[i].set(f"{i}: 0.0 %")
+            probability_texts_m2[i].set(f"{i}: 0.0 %")
     except NameError:
         pass
 
@@ -56,13 +70,25 @@ def predict():
     x = np.array(img, dtype=np.float32) / 255.0
     x = x.reshape(1, 28 * 28)
 
-    nn = NeuralNetwork(filename="model_v01.npz")
-    prediction = nn.forward(x).squeeze() * 100
-    sorted_indices = np.argsort(-prediction) # Sort indices in descending order
+    nn1 = NeuralNetwork(filename="model_v01.npz")
+    nn2 = NeuralNetwork(filename="model_v02.npz")
+    
+    # Get predictions from both models
+    prediction1 = nn1.forward(x).squeeze() * 100
+    prediction2 = nn2.forward(x).squeeze() * 100
+    
+    # Sort indices for model 1
+    sorted_indices1 = np.argsort(-prediction1)
+    # Sort indices for model 2
+    sorted_indices2 = np.argsort(-prediction2)
 
-    # Update UI labels with percentages
+    # Update UI labels for model 1
     for i in range(10):
-        probability_texts[i].set(f"{sorted_indices[i]}: {prediction[sorted_indices[i]]:.2f} %")
+        probability_texts_m1[i].set(f"{sorted_indices1[i]}: {prediction1[sorted_indices1[i]]:.2f} %")
+    
+    # Update UI labels for model 2
+    for i in range(10):
+        probability_texts_m2[i].set(f"{sorted_indices2[i]}: {prediction2[sorted_indices2[i]]:.2f} %")
 
 
 # Call paint while dragging pressing the left button
